@@ -1,6 +1,6 @@
 {
   "name": "@primeqa/common",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shared utilities, middleware, and types for PrimeQA microservices",
   "license": "MIT",
   "private": false,
