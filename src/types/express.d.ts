@@ -1,8 +1,10 @@
 import "express";
-import { JwtPayload } from "jsonwebtoken";
+import { UserClaims } from "./user";
 
 declare module "express-serve-static-core" {
   interface Request {
-    user?: string | JwtPayload;
+    user?: UserClaims;
+    tenantId?: string;
+    correlationId?: string;
   }
 }

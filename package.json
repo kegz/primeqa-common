@@ -2,38 +2,63 @@
   "name": "@primeqa/common",
   "version": "1.0.0",
   "description": "Shared utilities, middleware, and types for PrimeQA microservices",
+  "license": "MIT",
+  "private": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "author": "PrimeQA Team",
+  "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "dev": "npx ts-node --files src/index.ts",
-    "prepublishOnly": "npm run build",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:verbose": "jest --verbose",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write .",
-    "test:security": "npm audit"
+    "test:security": "npm audit",
+    "install": "npm install --force",
+    "prepublishOnly": "npm run build",
+    "drypublishOnly": "npm publish --dry-run",
+    "versionBump": "npm version patch",
+    "publish:public": "npm publish --access public",
+    "postpublish": "git push --follow-tags"
   },
-  "license": "MIT",
-  "author": "PrimeQA Team",
   "repository": {
     "type": "git",
     "url": "https://github.com/primeqa/primeqa-common.git"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
-    "@types/node": "^20.11.0",
+    "@types/node": "^20.19.30",
+    "@types/supertest": "^6.0.3",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-security-node": "^1.1.4",
+    "jest": "^30.2.0",
     "prettier": "^3.6.2",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },

@@ -12,7 +12,6 @@ export const getEnv = (
   }
 
   if (!isSensitive) {
-    // eslint-disable-next-line security-node/detect-crlf
     console.log(`Loaded env: ${key}`);
   }
 

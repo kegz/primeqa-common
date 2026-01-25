@@ -1,0 +1,342 @@
+Service Commons – Project Specification
+1. Project Overview
+Name
+
+Service Commons (service-commons)
+
+Purpose
+
+Provide a single, authoritative shared foundation for all TCMS backend services, ensuring:
+
+consistent authentication & authorization
+
+enforced tenant isolation
+
+standardized error handling & responses
+
+safe pagination, validation, and rate limiting
+
+cross-service observability (correlation IDs, logging)
+
+reduced copy-paste logic across services
+
+Non-Goals
+
+Service Commons must not:
+
+contain service-specific business logic
+
+embed database models
+
+hardcode domain permissions (only enforce them)
+
+depend on any single service (User/Project/etc.)
+
+2. Current State (As-Is)
+What Exists Today
+
+From review context and uploaded archive:
+
+Auth middleware exists but:
+
+contains placeholder code
+
+weak typing
+
+inconsistent failure handling
+
+Logger & security middleware exist but:
+
+not consistently exported
+
+no request correlation
+
+Error handling exists but:
+
+inconsistent shapes
+
+leaks implementation details
+
+No standardized:
+
+permission enforcement
+
+tenant isolation
+
+pagination
+
+validation
+
+Each service partially re-implements commons logic
+
+Key Risks If Left As-Is
+
+Cross-tenant data leakage
+
+Inconsistent API contracts
+
+Unbounded list endpoints (performance risk)
+
+Debugging production issues without traceability
+
+Security regressions as services scale
+
+3. Target State (To-Be)
+Positioning
+
+service-commons becomes a required dependency for every TCMS backend service.
+
+No service:
+
+parses JWTs itself
+
+invents its own error shape
+
+skips tenant enforcement
+
+returns raw secrets or stack traces
+
+4. Supported Services (Phase 1)
+
+Service Commons must explicitly support:
+
+User Service
+
+auth, permissions, tenant enforcement
+
+rate-limited login
+
+Project Service
+
+ownership checks
+
+pagination
+
+consistent errors
+
+Results Service
+
+heavy pagination
+
+idempotent writes
+
+correlation IDs
+
+Test Case Service
+
+validation
+
+tenant isolation
+
+Configuration Service
+
+secret masking
+
+validation
+
+5. Core Capabilities (Functional Scope)
+5.1 Authentication & User Context
+
+JWT validation middleware
+
+Typed UserClaims
+
+Single canonical req.user
+
+Helper to safely extract user context
+
+Guarantee:
+All services interpret identity the same way.
+
+5.2 Authorization
+
+Permission-based middleware
+
+Optional multi-permission support
+
+Service-agnostic permission strings
+
+Guarantee:
+Authorization rules are declarative and consistent.
+
+5.3 Tenant Isolation
+
+Mandatory tenant presence
+
+Body enforcement on create/update
+
+Helper assertions for controllers
+
+Guarantee:
+Cross-tenant access is impossible unless explicitly allowed.
+
+5.4 Error Handling
+
+Central error model
+
+Central error codes
+
+Uniform JSON response
+
+No stack traces in production
+
+Guarantee:
+Clients and logs see predictable error structures.
+
+5.5 Pagination
+
+Safe defaults
+
+Max limits enforced
+
+Shared response shape
+
+Guarantee:
+No service can accidentally return unbounded datasets.
+
+5.6 Validation
+
+Shared validation middleware
+
+Reusable validators
+
+Standard validation errors
+
+Guarantee:
+Bad input never reaches business logic.
+
+5.7 Security Hardening
+
+Rate limiting for auth endpoints
+
+Helmet headers
+
+Secret masking utilities
+
+Guarantee:
+Baseline OWASP protections are always enabled.
+
+5.8 Observability
+
+Correlation ID middleware
+
+Logger integration
+
+Trace IDs included in errors
+
+Guarantee:
+Every request can be traced across services.
+
+5.9 Idempotency (Phase 1+)
+
+Optional middleware for POST endpoints
+
+Header-based idempotency keys
+
+Guarantee:
+Safe retries for clients and orchestrators.
+
+6. Architecture & Design Principles
+6.1 Dependency Direction
+service-commons
+   ↑
+   ├── user-service
+   ├── project-service
+   ├── results-service
+   ├── test-case-service
+   └── configuration-service
+
+
+Commons never imports from services.
+
+6.2 API Stability
+
+Public exports only via src/index.ts
+
+No breaking changes without version bump
+
+Helpers over magic behavior
+
+6.3 Failure Strategy
+
+Fail fast
+
+Fail consistently
+
+Fail with context (traceId)
+
+7. Non-Functional Requirements
+Performance
+
+Zero DB access
+
+Minimal per-request overhead
+
+Rate limits configurable via env
+
+Security
+
+No secrets logged
+
+No token details leaked
+
+Headers hardened by default
+
+Maintainability
+
+Typed everywhere
+
+Testable in isolation
+
+Clear middleware ordering
+
+8. Definition of Done (Project-Level)
+
+The service-commons project is “done” when:
+
+All Phase 1 services compile using commons only
+
+No service defines its own:
+
+auth middleware
+
+error format
+
+pagination parser
+
+Tenant isolation is enforced everywhere
+
+Correlation ID appears in:
+
+logs
+
+responses
+
+error payloads
+
+Junior devs can add a new service without re-inventing infra
+
+9. Out of Scope (Phase 2+)
+
+Explicitly deferred:
+
+Encryption at rest
+
+Policy engine (ABAC)
+
+Distributed tracing (OpenTelemetry)
+
+API versioning framework
+
+10. Ownership & Governance
+Owners
+
+Platform / Backend Architecture
+
+Change Policy
+
+Any change to commons:
+
+requires cross-service impact review
+
+must not break existing services silently

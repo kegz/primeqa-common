@@ -2,11 +2,19 @@
   "root": true,
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": ["./tsconfig.json"],
+    "project": [
+      "./tsconfig.json",
+      "./tsconfig.test.json"
+    ],
     "sourceType": "module",
     "ecmaVersion": 2020
   },
-  "plugins": ["@typescript-eslint", "import", "prettier", "security-node"],
+  "plugins": [
+    "@typescript-eslint",
+    "import",
+    "prettier",
+    "security-node"
+  ],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
@@ -20,11 +28,15 @@
     "es2021": true
   },
   "rules": {
-    "prettier/prettier": ["error"],
+    "prettier/prettier": [
+      "error"
+    ],
     "no-console": "off",
     "@typescript-eslint/no-unused-vars": [
       "warn",
-      { "argsIgnorePattern": "^_" }
+      {
+        "argsIgnorePattern": "^_"
+      }
     ],
     "security/detect-object-injection": "off",
     "import/order": [
@@ -42,5 +54,40 @@
       }
     ]
   },
-  "ignorePatterns": ["dist", "node_modules"]
+  "ignorePatterns": [
+    "dist",
+    "node_modules"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "tests/**/*.ts"
+      ],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "security-node/detect-insecure-randomness": "off",
+        "security-node/detect-crlf": "off"
+      }
+    },
+    {
+      "files": [
+        "src/utils/cacheCleanup.ts"
+      ],
+      "rules": {
+        "@typescript-eslint/no-require-imports": "off",
+        "no-empty": "off",
+        "security-node/detect-crlf": "off"
+      }
+    },
+    {
+      "files": [
+        "src/http/client.example.ts",
+        "src/middlewares/logger.middleware.ts",
+        "src/utils/env.ts"
+      ],
+      "rules": {
+        "security-node/detect-crlf": "off"
+      }
+    }
+  ]
 }
