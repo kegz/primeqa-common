@@ -31,11 +31,10 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write .",
     "test:security": "npm audit",
-    "install": "npm install --force",
     "prepublishOnly": "npm run build",
     "drypublishOnly": "npm publish --dry-run",
     "versionBump": "npm version patch",
-    "publish:public": "npm publish --access public",
+    "publish:public": "npm publish",
     "postpublish": "git push --follow-tags"
   },
   "repository": {
