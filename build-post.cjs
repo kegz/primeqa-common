@@ -10,13 +10,16 @@ if (!fs.existsSync(distDir)) {
 	fs.mkdirSync(distDir, { recursive: true });
 }
 
-// Copy ESM build and rename to .mjs
+// Copy ESM build and rename to .mjs, add .js extensions to imports
 const esmIndexJs = path.join(distEsmDir, 'index.js');
 const esmIndexDts = path.join(distEsmDir, 'index.d.ts');
 
 if (fs.existsSync(esmIndexJs)) {
-	fs.copyFileSync(esmIndexJs, path.join(distDir, 'index.mjs'));
-	console.log('✓ Created index.mjs (ESM)');
+	let esmContent = fs.readFileSync(esmIndexJs, 'utf8');
+	// Add .js extension to all export statements
+	esmContent = esmContent.replace(/export \* from ["']\.\/([^"']+)(?<!\.js)["']/g, 'export * from "./$1.js"');
+	fs.writeFileSync(path.join(distDir, 'index.mjs'), esmContent);
+	console.log('✓ Created index.mjs (ESM with .js extensions)');
 }
 
 if (fs.existsSync(esmIndexDts)) {
@@ -24,7 +27,7 @@ if (fs.existsSync(esmIndexDts)) {
 	console.log('✓ Created index.d.ts');
 }
 
-// Copy ESM directory structure
+// Copy ESM directory structure and fix imports in all .js files
 const copyDirRecursive = (src, dest) => {
 	if (!fs.existsSync(dest)) {
 		fs.mkdirSync(dest, { recursive: true });
@@ -36,7 +39,13 @@ const copyDirRecursive = (src, dest) => {
 		if (fs.statSync(srcPath).isDirectory()) {
 			copyDirRecursive(srcPath, destPath);
 		} else if (!fs.existsSync(destPath)) {
-			fs.copyFileSync(srcPath, destPath);
+			let content = fs.readFileSync(srcPath, 'utf8');
+			// Add .js extension to all imports/exports in ESM files
+			if (srcPath.endsWith('.js')) {
+				content = content.replace(/from ["']\.\/([^"']+)(?<!\.js)["']/g, 'from "./$1.js"');
+				content = content.replace(/from ["']\.\.\/([^"']+)(?<!\.js)["']/g, 'from "../$1.js"');
+			}
+			fs.writeFileSync(destPath, content);
 		}
 	});
 };

@@ -9,6 +9,7 @@
   "types": "dist/index.d.ts",
   "author": "PrimeQA Team",
   "sideEffects": false,
+  "type": "module",
   "files": [
     "dist",
     "README.md",
@@ -23,7 +24,7 @@
     }
   },
   "scripts": {
-    "build": "npm run build:esm && npm run build:cjs && node build-post.js",
+    "build": "npm run build:esm && npm run build:cjs && node build-post.cjs",
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "dev": "npx ts-node --files src/index.ts",
